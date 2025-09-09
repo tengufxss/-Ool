@@ -1,0 +1,53 @@
+-- Configurable Hitbox Size (1-50)  
+local initialHitboxSize = 25
+
+-- Create the Hitbox Part  
+local hitbox = Instance.new("Part")  
+hitbox.Name = "LargeHitbox"  
+hitbox.Anchored = true  
+hitbox.CanCollide = false  
+hitbox.Transparency = 1 -- Make it invisible  
+hitbox.Size = Vector3.new(initialHitboxSize, 10, initialHitboxSize)  
+hitbox.Position = Vector3.new(0, 5, 0)  
+hitbox.Parent = game.Workspace
+
+-- Function to handle players entering the hitbox  
+local function onTouch(otherPart)  
+local player = game.Players:GetPlayerFromCharacter(otherPart.Parent)  
+if player then  
+print("Player " .. player.Name .. " entered the hitbox!")  
+-- Add your code here  
+end  
+end
+
+-- Connect the Touch event  
+hitbox.Touched:Connect(onTouch)
+
+-- Create GUI  
+local screenGui = Instance.new("ScreenGui")  
+screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")  
+screenGui.Name = "HitboxExpanderGUI"
+
+local frame = Instance.new("Frame")  
+frame.Parent = screenGui  
+frame.Size = UDim2.new(0.2, 0, 0.1, 0) -- 20% width, 10% height  
+frame.Position = UDim2.new(0.8, 0, 0.1, 0) -- Top-right corner  
+frame.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2) -- Dark gray  
+frame.BorderSizePixel = 0
+
+local slider = Instance.new("Slider")  
+slider.Parent = frame  
+slider.Size = UDim2.new(0.8, 0, 0.4, 0)  
+slider.Position = UDim2.new(0.1, 0, 0.3, 0)  
+slider.Min = 1  
+slider.Max = 50  
+slider.Value = initialHitboxSize
+
+-- Function to update hitbox size  
+local function updateHitboxSize()  
+hitboxSize = slider.Value  
+hitbox.Size = Vector3.new(hitboxSize, 10, hitboxSize)  
+end
+
+-- Connect slider's changed event  
+slider.Changed:Connect(updateHitboxSize)  
