@@ -1,0 +1,50 @@
+local player = game.Players.LocalPlayer  
+local character = player.Character or player.CharacterAdded:Wait()  
+local humanoid = character:WaitForChild("Humanoid")
+
+-- Configurable Speed Multiplier (1-100)  
+local initialSpeed = 16  -- Default WalkSpeed is 16  
+local minSpeed = 1  
+local maxSpeed = 100
+
+-- Create GUI  
+local screenGui = Instance.new("ScreenGui")  
+screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")  
+screenGui.Name = "SpeedToolGUI"
+
+local frame = Instance.new("Frame")  
+frame.Parent = screenGui  
+frame.Size = UDim2.new(0.2, 0, 0.1, 0)  
+frame.Position = UDim2.new(0.8, 0, 0.1, 0)  
+frame.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)  
+frame.BorderSizePixel = 0
+
+local slider = Instance.new("Slider")  
+slider.Parent = frame  
+slider.Size = UDim2.new(0.8, 0, 0.4, 0)  
+slider.Position = UDim2.new(0.1, 0, 0.3, 0)  
+slider.Min = minSpeed  
+slider.Max = maxSpeed  
+slider.Value = initialSpeed
+
+local label = Instance.new("TextLabel")  
+label.Parent = frame  
+label.Size = UDim2.new(0.8, 0, 0.2, 0)  
+label.Position = UDim2.new(0.1, 0, 0.05, 0)  
+label.Text = "Speed: " .. initialSpeed  
+label.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)  
+label.TextColor3 = Color3.new(1, 1, 1)  
+label.TextScaled = true
+
+-- Function to update speed  
+local function updateSpeed()  
+local speed = slider.Value  
+humanoid.WalkSpeed = speed  
+label.Text = "Speed: " .. speed  
+end
+
+-- Connect slider's changed event  
+slider.Changed:Connect(updateSpeed)
+
+-- Initial speed update  
+updateSpeed()  
