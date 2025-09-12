@@ -1,0 +1,51 @@
+local player = game.Players.LocalPlayer  
+local character = player.Character or player.CharacterAdded:Wait()  
+local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+
+-- Configurable Spin Speed  
+local spinSpeed = 50 -- Degrees per second
+
+-- Spinning state  
+local isSpinning = false
+
+-- Create GUI Button  
+local screenGui = Instance.new("ScreenGui")  
+screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")  
+screenGui.Name = "SpinButtonGUI"
+
+local frame = Instance.new("Frame")  
+frame.Parent = screenGui  
+frame.Size = UDim2.new(0.1, 0, 0.05, 0)  
+frame.Position = UDim2.new(0.85, 0, 0.1, 0)  
+frame.BackgroundColor3 = Color3.new(0.3, 0.3, 0.3)  
+frame.BorderSizePixel = 0
+
+local button = Instance.new("TextButton")  
+button.Parent = frame  
+button.Size = UDim2.new(1, 0, 1, 0)  
+button.Text = "Spin!"  
+button.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)  
+button.TextColor3 = Color3.new(1, 1, 1)
+
+-- Function to spin the character  
+local function spinCharacter()  
+  if isSpinning then  
+    isSpinning = false  
+    button.Text = "Spin!"  
+  else  
+    isSpinning = true  
+    button.Text = "Stop!"
+
+    local run = function()  
+      if isSpinning then  
+        humanoidRootPart.CFrame = humanoidRootPart.CFrame * CFrame.Angles(0, math.rad(spinSpeed * deltaTime), 0)  
+      end  
+    end
+
+    run() -- Initial Run  
+    game:GetService("RunService").Heartbeat:Connect(run)  
+  end  
+end
+
+-- Connect button click event  
+button.MouseButton1Click:Connect(spinCharacter)  
