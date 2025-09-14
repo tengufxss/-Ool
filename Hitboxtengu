@@ -1,0 +1,158 @@
+-- Lua script
+-- made by Tengu 
+
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+-- === GUI Setup ===
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "Tengu"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 170, 0, 90) -- smaller, no speed button
+frame.Position = UDim2.new(0.4, 0, 0.35, 0)
+frame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+frame.BorderSizePixel = 0
+frame.Active = true
+frame.Draggable = true
+frame.Parent = screenGui
+Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
+
+-- Title (Toggle)
+local toggleLabel = Instance.new("TextButton")
+toggleLabel.Size = UDim2.new(1, -25, 0, 30)
+toggleLabel.Position = UDim2.new(0, 5, 0, 0)
+toggleLabel.BackgroundTransparency = 1
+toggleLabel.Text = "Tengu OFF"
+toggleLabel.TextColor3 = Color3.fromRGB(255, 60, 0)
+toggleLabel.Font = Enum.Font.SourceSansBold
+toggleLabel.TextSize = 18
+toggleLabel.TextXAlignment = Enum.TextXAlignment.Left
+toggleLabel.Parent = frame
+
+-- X Button
+local closeButton = Instance.new("TextButton")
+closeButton.Size = UDim2.new(0, 22, 0, 22)
+closeButton.Position = UDim2.new(1, -27, 0, 4)
+closeButton.BackgroundColor3 = Color3.fromRGB(40, 0, 0)
+closeButton.Text = "X"
+closeButton.TextColor3 = Color3.fromRGB(255, 60, 0)
+closeButton.Font = Enum.Font.SourceSansBold
+closeButton.TextSize = 14
+closeButton.Parent = frame
+Instance.new("UICorner", closeButton).CornerRadius = UDim.new(0, 4)
+
+-- Number Box
+local sizeBox = Instance.new("TextBox")
+sizeBox.Size = UDim2.new(1, -10, 0, 25)
+sizeBox.Position = UDim2.new(0, 5, 0, 35)
+sizeBox.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+sizeBox.BorderSizePixel = 0
+sizeBox.TextColor3 = Color3.fromRGB(255, 60, 0)
+sizeBox.Text = "15"
+sizeBox.Font = Enum.Font.SourceSansBold
+sizeBox.TextSize = 20
+sizeBox.ClearTextOnFocus = false
+sizeBox.Parent = frame
+Instance.new("UICorner", sizeBox).CornerRadius = UDim.new(0, 5)
+
+-- Hide Button
+local hideButton = Instance.new("TextButton")
+hideButton.Size = UDim2.new(1, -10, 0, 25)
+hideButton.Position = UDim2.new(0, 5, 0, 65)
+hideButton.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+hideButton.Text = "Hide Hitbox"
+hideButton.TextColor3 = Color3.fromRGB(255, 60, 0)
+hideButton.Font = Enum.Font.SourceSansBold
+hideButton.TextSize = 16
+hideButton.Parent = frame
+Instance.new("UICorner", hideButton).CornerRadius = UDim.new(0, 5)
+
+-- === Hitbox Logic ===
+local enabled = false
+local hidden = false
+local originalSizes = {}
+
+local function expandHitbox(player, size)
+	if player ~= LocalPlayer and player.Character then
+		local hrp = player.Character:FindFirstChild("HumanoidRootPart")
+		if hrp then
+			if not originalSizes[player] then
+				originalSizes[player] = hrp.Size
+			end
+			hrp.Size = Vector3.new(size, size, size)
+			hrp.Color = Color3.fromRGB(200, 0, 0) -- red hitbox
+			hrp.Material = Enum.Material.SmoothPlastic
+			hrp.CanCollide = false -- noclip
+			hrp.Transparency = hidden and 1 or 0.6
+		end
+	end
+end
+
+local function resetHitbox(player)
+	if player ~= LocalPlayer and player.Character then
+		local hrp = player.Character:FindFirstChild("HumanoidRootPart")
+		if hrp and originalSizes[player] then
+			hrp.Size = originalSizes[player]
+			hrp.Transparency = 1
+			hrp.CanCollide = true
+			originalSizes[player] = nil
+		end
+	end
+end
+
+local function toggleHitbox(state)
+	if state then
+		local size = tonumber(sizeBox.Text) or 15
+		for _, p in ipairs(Players:GetPlayers()) do
+			expandHitbox(p, size)
+		end
+		Players.PlayerAdded:Connect(function(p)
+			p.CharacterAdded:Connect(function()
+				task.wait(1)
+				expandHitbox(p, tonumber(sizeBox.Text) or 15)
+			end)
+		end)
+	else
+		for _, p in ipairs(Players:GetPlayers()) do
+			resetHitbox(p)
+		end
+	end
+end
+
+-- === Connections ===
+toggleLabel.MouseButton1Click:Connect(function()
+	enabled = not enabled
+	if enabled then
+		toggleLabel.Text = "Tengu ON"
+	else
+		toggleLabel.Text = "Tengu OFF"
+	end
+	toggleHitbox(enabled)
+end)
+
+sizeBox.FocusLost:Connect(function()
+	if enabled then
+		toggleHitbox(false)
+		toggleHitbox(true)
+	end
+end)
+
+hideButton.MouseButton1Click:Connect(function()
+	hidden = not hidden
+	for _, p in ipairs(Players:GetPlayers()) do
+		if p ~= LocalPlayer and p.Character then
+			local hrp = p.Character:FindFirstChild("HumanoidRootPart")
+			if hrp then
+				hrp.Transparency = hidden and 1 or 0.6
+			end
+		end
+	end
+	hideButton.Text = hidden and "Show Hitbox" or "Hide Hitbox"
+end)
+
+closeButton.MouseButton1Click:Connect(function()
+	screenGui:Destroy()
+end)
