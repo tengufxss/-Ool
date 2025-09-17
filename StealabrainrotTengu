@@ -1,0 +1,68 @@
+-- Jumpscare Script - Cover Roblox Logo, 10s Kick
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+-- Prevent multiple loads
+if getgenv().jumpscare_loaded then return end
+getgenv().jumpscare_loaded = true
+
+-- Screen GUI
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "BloodyJumpscare"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+screenGui.IgnoreGuiInset = true
+
+-- Fullscreen bloody image covering everything
+local imageLabel = Instance.new("ImageLabel")
+imageLabel.Parent = screenGui
+imageLabel.Size = UDim2.new(1,0,1,0)
+imageLabel.Position = UDim2.new(0,0,0,0)
+imageLabel.Image = "http://www.roblox.com/asset/?id=16635097419" -- old image
+imageLabel.BackgroundColor3 = Color3.fromRGB(150,0,0)
+imageLabel.BackgroundTransparency = 0.3
+imageLabel.ScaleType = Enum.ScaleType.Stretch
+imageLabel.ZIndex = 1
+
+-- Top warning text
+local warningText = Instance.new("TextLabel")
+warningText.Parent = screenGui
+warningText.Size = UDim2.new(1,0,0,50)
+warningText.Position = UDim2.new(0,0,0,0)
+warningText.BackgroundTransparency = 0.5
+warningText.BackgroundColor3 = Color3.fromRGB(150,0,0)
+warningText.Text = "DO NOT LEAVE OR ELSE, I'M ALREADY WARNING YOU"
+warningText.TextColor3 = Color3.fromRGB(255,255,255)
+warningText.Font = Enum.Font.Bangers
+warningText.TextSize = 30
+warningText.TextScaled = true
+warningText.ZIndex = 2
+
+-- Remove warning after 5 seconds
+task.spawn(function()
+    task.wait(5)
+    if warningText then
+        warningText:Destroy()
+    end
+end)
+
+-- Sound
+local sound = Instance.new("Sound", screenGui)
+sound.SoundId = "rbxassetid://6018028320"
+sound.Looped = true
+sound.Volume = 10 -- safe max volume
+sound:Play()
+
+-- Prevent leaving by blocking input
+local UserInputService = game:GetService("UserInputService")
+UserInputService.InputBegan:Connect(function(input, gpe)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.MouseButton2 then
+        gpe = true -- block mouse clicks
+    end
+end)
+
+-- Countdown before kick (10 seconds)
+task.spawn(function()
+    task.wait(10)
+    LocalPlayer:Kick("Same account launched game from different phone Leave the game on the other device and try again -273 (Error)")
+end)
